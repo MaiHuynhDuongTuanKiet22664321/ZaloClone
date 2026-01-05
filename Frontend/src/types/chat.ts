@@ -13,4 +13,10 @@ export type ChatMessage = {
   text: string;
   fromMe: boolean;
   time?: string;
+  isRevoked?: boolean;
+  replyTo?: {
+    id: string;
+    senderName: string;
+    text: string;
+  };
 };

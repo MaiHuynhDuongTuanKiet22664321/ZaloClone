@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { Camera, PenSquare } from 'lucide-react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const MOCK_POSTS = [
   {
@@ -24,6 +25,7 @@ const MOCK_POSTS = [
 
 export default function TimelineScreen() {
   return (
+    <SafeAreaView style={styles.safeArea} edges={['top']}>
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Nhật ký</Text>
@@ -57,10 +59,12 @@ export default function TimelineScreen() {
         )}
       />
     </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: { flex: 1, backgroundColor: '#000' },
   container: { flex: 1, backgroundColor: '#000' },
   header: {
     height: 56,

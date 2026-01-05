@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { ChevronRight, QrCode, Shield, Settings, Bell, Star } from 'lucide-react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const AVATAR = 'https://i.pravatar.cc/200?u=my-profile';
 
@@ -20,6 +21,7 @@ function Row({ title, Icon }: { title: string; Icon: React.ComponentType<{ size?
 
 export default function ProfileScreen() {
   return (
+    <SafeAreaView style={styles.safeArea} edges={['top']}>
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Cá nhân</Text>
@@ -43,10 +45,12 @@ export default function ProfileScreen() {
         <Row title="Cài đặt" Icon={Settings} />
       </View>
     </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: { flex: 1, backgroundColor: '#000' },
   container: { flex: 1, backgroundColor: '#000' },
   header: {
     height: 56,

@@ -1,4 +1,4 @@
-export type TabProps {
+export type TabProps = {
   tabs: string[];
   showFilter?: boolean;
-}
+};

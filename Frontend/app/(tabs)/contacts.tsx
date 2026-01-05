@@ -1,11 +1,11 @@
 import React, { useState, useMemo } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { FlashList } from '@shopify/flash-list';
 import { useRouter } from 'expo-router';
 import { Cake, Phone, UserPlus, Users } from 'lucide-react-native';
 import { Colors } from '../../src/constants/Colors';
-import { ContactsSearchHeader } from '../../src/components/contacts/ContactsSearchHeader';
-
+import { ContactsSearchHeader } from '@/src/components/contacts/contactsSearchHeader';
 // 1. Tách Data ra ngoài để tránh khởi tạo lại
 const DATA_FRIENDS = [
   { id: '1', name: 'Hoàng Vũ', subtitle: 'Đang hoạt động', avatar: 'https://i.pravatar.cc/150?u=1' },
@@ -50,34 +50,38 @@ export default function ContactsScreen() {
   }, [activeTab, filterType]);
 
 
-  const ContactItem = React.memo(({ item, filterType }: any) => {
-  const isOnline = item.subtitle === 'Vừa truy cập' || item.subtitle === 'Đang hoạt động' || item.subtitle === 'Online';
+  const ContactItem = React.memo(function ContactItem({ item }: any) {
+    const isOnline = item.subtitle === 'Vừa truy cập' || item.subtitle === 'Đang hoạt động' || item.subtitle === 'Online';
 
-  return (
-    <TouchableOpacity style={styles.row} activeOpacity={0.7}>
-      <View style={styles.avatarContainer}>
-        <Image source={{ uri: item.avatar }} style={styles.avatar} />
-        {/* Fix logic: Chấm xanh hiện ở tab Bạn bè khi online */}
-        {isOnline && <View style={styles.onlineDot} />}
-      </View>
-
-      <View style={styles.rowContent}>
-        <View style={styles.textWrapper}>
-          <Text style={styles.name}>{item.name}</Text>
-          <Text style={styles.subtitle} numberOfLines={1}>{item.subtitle}</Text>
+    return (
+      <TouchableOpacity style={styles.row} activeOpacity={0.7}>
+        <View style={styles.avatarContainer}>
+          <Image source={{ uri: item.avatar }} style={styles.avatar} />
+          {/* Fix logic: Chấm xanh hiện ở tab Bạn bè khi online */}
+          {isOnline && <View style={styles.onlineDot} />}
         </View>
-        {activeTab === 0 && (
-          <TouchableOpacity style={styles.callButton}>
-            <Phone size={20} color="#8E8E93" />
-          </TouchableOpacity>
-        )}
-      </View>
-    </TouchableOpacity>
-  );
-});
+
+        <View style={styles.rowContent}>
+          <View style={styles.textWrapper}>
+            <Text style={styles.name}>{item.name}</Text>
+            <Text style={styles.subtitle} numberOfLines={1}>
+              {item.subtitle}
+            </Text>
+          </View>
+          {activeTab === 0 && (
+            <TouchableOpacity style={styles.callButton}>
+              <Phone size={20} color="#8E8E93" />
+            </TouchableOpacity>
+          )}
+        </View>
+      </TouchableOpacity>
+    );
+  });
+
+  ContactItem.displayName = 'ContactItem';
 
   const renderListHeader = () => {
-    if (activeTab == 0) {
+    if (activeTab === 0) {
       return (
         <View style={styles.staticMenu}>
           <MenuOption icon={<Users size={22} color="#fff" />} title="Lời mời kết bạn" />
@@ -102,7 +106,7 @@ export default function ContactsScreen() {
         </View>
       );
     }
-    if (activeTab == 1) {
+    if (activeTab === 1) {
       return (
         <View style={styles.staticMenu}>
           <MenuOption icon={<UserPlus size={22} color="#fff" />} title="Tạo nhóm mới" />
@@ -118,6 +122,7 @@ export default function ContactsScreen() {
   };
 
   return (
+    <SafeAreaView style={styles.safeArea} edges={['top']}>
     <View style={styles.container}>
       <ContactsSearchHeader onPressSearch={() => router.push('/search')} />
 
@@ -134,10 +139,10 @@ export default function ContactsScreen() {
         data={currentData}
         keyExtractor={(item) => item.id}
         ListHeaderComponent={renderListHeader}
-        renderItem={({ item }) => <ContactItem item={item} filterType={filterType} />}
-        estimatedItemSize={70}
+        renderItem={({ item }) => <ContactItem item={item} />}
       />
     </View>
+    </SafeAreaView>
   );
 }
 
@@ -159,6 +164,10 @@ const FilterChip = ({ label, count, isActive, onPress }: any) => (
 );
 
 const styles = StyleSheet.create({
+  safeArea: { 
+        flex: 1, 
+        backgroundColor: '#000'
+    },
   container: { flex: 1, backgroundColor: '#000' },
   headerTitle: { color: '#fff', fontSize: 18, fontWeight: '600' },
   headerActions: { flexDirection: 'row', gap: 10 },
@@ -231,7 +240,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   callButton: {
-    padding: 10, // Tăng diện tích bấm cho icon gọi
+    padding: 10,
   },
   tabText: {
     fontSize: 16,

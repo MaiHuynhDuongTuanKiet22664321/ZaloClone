@@ -1,10 +1,13 @@
-import React, { useMemo, useState } from 'react';
-import { View, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
+import React, { useMemo, useRef, useState } from 'react';
+import { Alert, KeyboardAvoidingView, Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import type { ChatMessage } from '@/src/types/chat';
 import { MessageBubble } from '@/src/components/chat/MessageBubble';
 import { ChatComposer } from '@/src/components/chat/ChatComposer';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Phone, List } from 'lucide-react-native';
+import { ImageViewer } from '@/src/components/chat/ImageViewer';
 
 export default function ChatDetailScreen() {
   const params = useLocalSearchParams<{ id?: string; name?: string }>();
@@ -15,11 +18,63 @@ export default function ChatDetailScreen() {
   }, [params?.name]);
 
   const [input, setInput] = useState('');
+  const [replyingMessage, setReplyingMessage] = useState<ChatMessage | null>(null);
+  const flashListRef = useRef<FlashList<ChatMessage>>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([
     { id: 'm1', text: 'Chào bạn, mình có thể giúp gì?', fromMe: false, time: '09:00' },
     { id: 'm2', text: 'Mình đang làm app Zalo bằng Expo Router.', fromMe: true, time: '09:01' },
     { id: 'm3', text: 'Ok, mình gửi UI cơ bản nhé.', fromMe: false, time: '09:02' },
   ]);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
+  const handleSendFiles = (files: DocumentPicker.DocumentPickerAsset[]) => {
+    const newMessages = files.map((file, index) => {
+      const isImage = file.mimeType?.startsWith('image/');
+
+      return {
+        id: `${Date.now()}_${index}`,
+
+        fromMe: true,
+        text: '',
+        timestamp: new Date().toISOString(),
+
+        // Quan trọng: Tách từng file thành từng object message riêng biệt
+        type: isImage ? 'image' : 'file',
+        fileInfo: {
+          name: file.name,
+          size: file.size ? (file.size / (1024 * 1024)).toFixed(2) + ' MB' : '0 MB',
+          uri: file.uri,
+          mimeType: file.mimeType
+        }
+      };
+    });
+
+    setMessages(prev => [...prev, ...newMessages]);
+    setTimeout(() => {
+      flashListRef.current?.scrollToEnd({ animated: true });
+    }, 100);
+  };
+
+  const openMessageActions = (msg: ChatMessage) => {
+    Alert.alert('Tùy chọn', undefined, [
+      {
+        text: 'Trả lời',
+        onPress: () => {
+          if (msg.isRevoked) return;
+          setReplyingMessage(msg);
+        },
+      },
+      {
+        text: 'Thu hồi',
+        style: 'destructive',
+        onPress: () => {
+          setMessages((prev) => prev.map((m) => (m.id === msg.id ? { ...m, isRevoked: true } : m)));
+          if (replyingMessage?.id === msg.id) setReplyingMessage(null);
+        },
+      },
+      { text: 'Hủy', style: 'cancel' },
+    ]);
+  };
 
   const onSend = () => {
     const trimmed = input.trim();
@@ -27,19 +82,46 @@ export default function ChatDetailScreen() {
 
     setMessages((prev) => [
       ...prev,
-      { id: String(Date.now()), text: trimmed, fromMe: true, time: '' },
+      {
+        id: String(Date.now()),
+        text: trimmed,
+        fromMe: true,
+        time: '',
+        replyTo: replyingMessage
+          ? {
+            id: replyingMessage.id,
+            senderName: replyingMessage.fromMe ? 'Bạn' : title,
+            text: replyingMessage.isRevoked ? 'Tin nhắn đã thu hồi' : replyingMessage.text,
+          }
+          : undefined,
+      },
     ]);
     setInput('');
+    setReplyingMessage(null);
+    setTimeout(() => {
+      flashListRef.current?.scrollToEnd({ animated: true });
+    }, 100);
   };
 
+
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Stack.Screen
         options={{
           headerShown: true,
           title,
           headerStyle: { backgroundColor: '#1a1a1a' },
           headerTintColor: '#fff',
+          headerRight: () => (
+            <View style={styles.headerRightContainer}>
+              <TouchableOpacity style={styles.callButton}>
+                <Phone size={20} color="#fff" />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.callButton}>
+                <List size={20} color="#fff" />
+              </TouchableOpacity>
+            </View>
+          ),
         }}
       />
 
@@ -52,17 +134,44 @@ export default function ChatDetailScreen() {
           data={messages}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.listContent}
-          renderItem={({ item }) => <MessageBubble item={item} />}
+          estimatedItemSize={100}
+          renderItem={({ item }) => <MessageBubble item={item} onLongPress={openMessageActions} onImagePress={(uri) =>{console.log("Opening image:", uri); setSelectedImage(uri);}} />}
         />
 
-        <ChatComposer value={input} onChangeText={setInput} onSend={onSend} />
+        <ChatComposer
+          value={input}
+          onChangeText={setInput}
+          onSend={onSend}
+          onSendFiles={handleSendFiles}
+          replyingTo={
+            replyingMessage
+              ? {
+                senderName: replyingMessage.fromMe ? 'Bạn' : title,
+                text: replyingMessage.isRevoked ? 'Tin nhắn đã thu hồi' : replyingMessage.text,
+              }
+              : null
+          }
+          onCancelReply={() => setReplyingMessage(null)}
+        />
+        <ImageViewer
+          visible={!!selectedImage}
+          uri={selectedImage}
+          onClose={() => setSelectedImage(null)}
+        />
       </KeyboardAvoidingView>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#000' },
+  headerRightContainer: {
+    flexDirection: 'row',
+    gap: 12,
+  },
   body: { flex: 1 },
   listContent: { paddingHorizontal: 12, paddingVertical: 10 },
+  callButton: {
+    padding: 10,
+  },
 });
