@@ -5,6 +5,7 @@ import { File, FileText, Image as ImageIcon, MapPin, Mic, MoreHorizontal, Send, 
 import EmojiPicker, { EmojiType } from 'rn-emoji-keyboard';
 import * as DocumentPicker from 'expo-document-picker';
 
+
 const ZALO_BLUE = '#0091ff';
 
 // Định nghĩa lại Props để nhận mảng assets từ DocumentPicker
@@ -32,7 +33,9 @@ export function ChatComposer({
   const canSend = useMemo(() => value.trim().length > 0, [value]);
 
   const handlePickEmoji = (emojiObject: EmojiType) => {
-    onChangeText(value + emojiObject.emoji);
+    onChangeText((prevValue: string) => {
+      return prevValue + emojiObject.emoji;
+    });
   };
 
   // --- PHẦN ĐÃ SỬA ---
@@ -45,8 +48,6 @@ export function ChatComposer({
       });
 
       if (!result.canceled && result.assets) {
-        // QUAN TRỌNG: Gửi nguyên mảng assets ra ngoài 1 lần duy nhất
-        // Không dùng forEach ở đây để tránh setMessages liên tục gây lỗi
         onSendFiles(result.assets);
 
         setShowMore(false); // Đóng bảng chọn
@@ -55,7 +56,6 @@ export function ChatComposer({
       Alert.alert('Lỗi', 'Không thể chọn tài liệu');
     }
   };
-  // -------------------
 
   return (
     <View style={styles.container}>

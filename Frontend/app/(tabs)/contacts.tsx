@@ -5,7 +5,7 @@ import { FlashList } from '@shopify/flash-list';
 import { useRouter } from 'expo-router';
 import { Cake, Phone, UserPlus, Users } from 'lucide-react-native';
 import { Colors } from '../../src/constants/Colors';
-import { ContactsSearchHeader } from '@/src/components/contacts/contactsSearchHeader';
+import { ContactsSearchHeader } from '@/src/components/contacts/ContactsSearchHeader';
 // 1. Tách Data ra ngoài để tránh khởi tạo lại
 const DATA_FRIENDS = [
   { id: '1', name: 'Hoàng Vũ', subtitle: 'Đang hoạt động', avatar: 'https://i.pravatar.cc/150?u=1' },

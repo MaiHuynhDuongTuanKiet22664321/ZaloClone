@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import { useRouter } from 'expo-router';
@@ -13,13 +13,10 @@ const MOCK_CHATS: ChatPreview[] = [
     { id: '2', name: 'Thời Tiết', lastMsg: 'Chúc một ngày tốt lành, thời tiết Tây Ninh...', time: '9 giờ', avatar: 'https://cdn-icons-png.flaticon.com/512/1163/1163763.png', hasDot: true },
     { id: '3', name: 'Phạm Hoàng Vũ', lastMsg: '[Cuộc gọi thoại đi]', time: '9 giờ', avatar: 'https://i.pravatar.cc/150?u=3' },
     { id: '4', name: 'Tấn Minh', lastMsg: 'Bạn: Chốt đề tài Kiến trúc phần mềm đi bn ơi', time: '9 giờ', avatar: 'https://i.pravatar.cc/150?u=4' },
-    
     { id: '5', name: 'Nhóm Lập Trình', lastMsg: 'Minh: Đã xong phần thiết kế UI', time: '10 giờ', avatar: 'https://i.pravatar.cc/150?u=5' },
     { id: '6', name: 'Nhóm Đồ Án', lastMsg: 'Hùng: Mình sẽ làm phần backend', time: '11 giờ', avatar: 'https://i.pravatar.cc/150?u=6' },
-    
     { id: '7', name: 'Bạn Bè', lastMsg: 'Hà: Cùng đi chơi không?', time: '12 giờ', avatar: 'https://i.pravatar.cc/150?u=7' },
     { id: '8', name: 'Work Team', lastMsg: 'Linh: Đã gửi báo cáo tuần', time: '13 giờ', avatar: 'https://i.pravatar.cc/150?u=8' },
-    
     { id: '9', name: 'Study Group', lastMsg: 'Nam: Bài tập về nhà ai làm xong chưa?', time: '14 giờ', avatar: 'https://i.pravatar.cc/150?u=9' },
     { id: '10', name: 'Family Chat', lastMsg: 'Mẹ: Tối nay ăn gì?', time: '15 giờ', avatar: 'https://i.pravatar.cc/150?u=10' },
     { id: '11', name: 'Hobby Group', lastMsg: 'Huy: Ai muốn chơi game không?', time: '16 giờ', avatar: 'https://i.pravatar.cc/150?u=11' },
@@ -32,7 +29,7 @@ export default function HomeScreen() {
     return (
         <SafeAreaView style={styles.safeArea} edges={['top']}>
         <View style={styles.container}>
-            <ChatSearchHeader onPressSearch={() => router.push('/search')} />
+            <ChatSearchHeader onPressSearch={() => router.push('/search')}/>
 
             {/* Filter Tabs */}
             <View style={styles.filterContainer}>

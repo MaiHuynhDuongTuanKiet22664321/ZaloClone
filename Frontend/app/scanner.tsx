@@ -5,8 +5,7 @@ import { CameraView, useCameraPermissions, type BarcodeScanningResult } from 'ex
 import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { SwitchCamera, X, Zap, ZapOff } from 'lucide-react-native';
-
-const ZALO_BLUE = '#0091ff';
+import { Colors } from '@/src/constants/Colors';
 
 export default function ScannerScreen() {
   const router = useRouter();
@@ -154,7 +153,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: 38,
     height: 38,
-    borderColor: ZALO_BLUE,
+    borderColor: Colors.zaloBlue,
     borderRadius: 10,
   },
   topLeft: { left: -2, top: -2, borderLeftWidth: 4, borderTopWidth: 4 },
@@ -227,7 +226,7 @@ const styles = StyleSheet.create({
   permissionTitle: { color: '#fff', fontSize: 18, fontWeight: '700', marginBottom: 6 },
   permissionSubtitle: { color: '#bdbdbd', fontSize: 14, textAlign: 'center', marginBottom: 16 },
   permissionButton: {
-    backgroundColor: ZALO_BLUE,
+    backgroundColor: Colors.zaloBlue,
     paddingHorizontal: 18,
     paddingVertical: 12,
     borderRadius: 14,

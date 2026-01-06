@@ -1,14 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { Search, Plus, QrCode } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
+import { HeaderMenu } from './HeaderMenu';
 
 export function ChatSearchHeader({
   onPressSearch,
 }: {
   onPressSearch: () => void;
 }) {
-    const router = useRouter();
+  const router = useRouter();
+  const [menuVisible, setMenuVisible] = useState(false);
   return (
     <View style={styles.header}>
       <TouchableOpacity onPress={onPressSearch}>
@@ -21,8 +23,9 @@ export function ChatSearchHeader({
         showSoftInputOnFocus={false}
         onFocus={onPressSearch}
       />
-      <QrCode size={22} color="#fff" style={styles.iconRight} onPress={() => router.push('/scanner')}/>
-      <Plus size={26} color="#fff" style={styles.iconRight} />
+      <QrCode size={22} color="#fff" style={styles.iconRight} onPress={() => router.push('/scanner')} />
+      <Plus size={26} color="#fff" style={styles.iconRight} onPress={() => setMenuVisible(true)} />
+      <HeaderMenu visible={menuVisible} onClose={() => setMenuVisible(false)} />
     </View>
   );
 }
